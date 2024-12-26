@@ -1,38 +1,25 @@
 window.onload = () => {
-    let places = staticLoadPlaces();
-    renderPlaces(places);
+    let testEntityAdded = false;
+
+    const el = document.querySelector("[gps-new-camera]");
+
+    el.addEventListener("gps-camera-update-position", e => {
+        if(!testEntityAdded) {
+            alert(`Got first GPS position: lon ${e.detail.position.longitude} lat ${e.detail.position.latitude}`);
+            // Add a box to the north of the initial GPS position
+            const entity = document.createElement("a-box");
+            entity.setAttribute("scale", {
+                x: 20, 
+                y: 20,
+                z: 20
+            });
+            entity.setAttribute('material', { color: 'red' } );
+            entity.setAttribute('gps-new-entity-place', {
+                latitude: e.detail.position.latitude + 0.001,
+                longitude: e.detail.position.longitude
+            });
+            document.querySelector("a-scene").appendChild(entity);
+        }
+        testEntityAdded = true;
+    });
 };
-
-function staticLoadPlaces() {
-   return [
-       {
-           name: 'Magnemite',
-           location: {
-               lat: e.detail.position.latitude + 0.001,
-               lng: e.detail.position.longitude,
-           }
-       },
-   ];
-}
-
-function renderPlaces(places) {
-   let scene = document.querySelector('a-scene');
-
-   places.forEach((place) => {
-       let latitude = place.location.lat;
-       let longitude = place.location.lng;
-
-       let model = document.createElement('a-entity');
-       model.setAttribute('gps-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
-       model.setAttribute('gltf-model', './assets/magnemite/scene.gltf');
-       model.setAttribute('rotation', '0 180 0');
-       model.setAttribute('animation-mixer', '');
-       model.setAttribute('scale', '0.5 0.5 0.5');
-
-       model.addEventListener('loaded', () => {
-           window.dispatchEvent(new CustomEvent('gps-entity-place-loaded'))
-       });
-
-       scene.appendChild(model);
-   });
-}
