@@ -32,8 +32,10 @@
     </a-scene>
 
     <script>
-      let lat = prompt("Enter latitude")
-      let lon = prompt("Enter longitude")
+      let lat = prompt("Enter latitude");
+      if (lat != null) {
+        let lon = prompt("Enter longitude");
+      }
 
       // Update the gps-entity-place attribute of the <a-entity>
       const pokemonEntity = document.getElementById('pokemon');
