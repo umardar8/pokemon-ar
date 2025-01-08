@@ -14,26 +14,44 @@
   </head>
 
   <body style="margin: 0; overflow: hidden">
+    <form id="locationForm" style="position: absolute; top: 10px; left: 10px; z-index: 1; background: white; padding: 10px; border-radius: 5px;">
+      <label for="latitude">Latitude:</label>
+      <input type="number" id="latitude" placeholder="Enter latitude" required step="any" />
+      <label for="longitude">Longitude:</label>
+      <input type="number" id="longitude" placeholder="Enter longitude" required step="any" />
+      <button type="submit">Set Location</button>
+    </form>
+
     <a-scene
       vr-mode-ui="enabled: false"
       embedded
       arjs="sourceType: webcam; sourceWidth:1280; sourceHeight:960; displayWidth: 1280; displayHeight: 960; debugUIEnabled: false;"
     >
-        <a-camera gps-camera rotation-reader></a-camera>
-        <a-entity 
-            gltf-model="./assets/magnemite/scene.gltf" 
-            rotation="0 180 0" 
-            scale="0.15 0.15 0.15" 
-            gps-entity-place="latitude: 25.404841; longitude: 68.260988;"
-            animation-mixer
-        />
-        <a-entity 
-            gltf-model="./assets/map_pointer/scene.gltf" 
-            rotation="0 180 0" 
-            scale="0.15 0.15 0.15" 
-            gps-entity-place="latitude: 25.404837; longitude: 68.260942;"
-            animation-mixer
-        />
+      <a-camera gps-camera rotation-reader></a-camera>
+      <a-entity
+        id="pokemon"
+        gltf-model="./assets/magnemite/scene.gltf"
+        rotation="0 180 0"
+        scale="0.15 0.15 0.15"
+        gps-entity-place="latitude: 0; longitude: 0;"
+        animation-mixer
+      ></a-entity>
     </a-scene>
+
+    <script>
+      document.getElementById('locationForm').addEventListener('submit', function (event) {
+        event.preventDefault(); // Prevent form submission
+
+        // Get the latitude and longitude from user input
+        const latitude = document.getElementById('latitude').value;
+        const longitude = document.getElementById('longitude').value;
+
+        // Update the gps-entity-place attribute of the <a-entity>
+        const pokemonEntity = document.getElementById('pokemon');
+        pokemonEntity.setAttribute('gps-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
+        
+        alert(`Location set to Latitude: ${latitude}, Longitude: ${longitude}`);
+      });
+    </script>
   </body>
 </html>
