@@ -14,13 +14,6 @@
   </head>
 
   <body style="margin: 0; overflow: hidden">
-    <form id="locationForm" style="position: absolute; top: 10px; left: 10px; z-index: 1; background: white; padding: 10px; border-radius: 5px;">
-      <label for="latitude">Latitude:</label>
-      <input type="number" id="latitude" placeholder="Enter latitude" required step="any" />
-      <label for="longitude">Longitude:</label>
-      <input type="number" id="longitude" placeholder="Enter longitude" required step="any" />
-      <button type="submit">Set Location</button>
-    </form>
 
     <a-scene
       vr-mode-ui="enabled: false"
@@ -39,19 +32,13 @@
     </a-scene>
 
     <script>
-      document.getElementById('locationForm').addEventListener('submit', function (event) {
-        event.preventDefault(); // Prevent form submission
+      let lat = prompt("Enter latitude")
+      let lon = prompt("Enter longitude")
 
-        // Get the latitude and longitude from user input
-        const latitude = document.getElementById('latitude').value;
-        const longitude = document.getElementById('longitude').value;
+      // Update the gps-entity-place attribute of the <a-entity>
+      const pokemonEntity = document.getElementById('pokemon');
+      pokemonEntity.setAttribute('gps-entity-place', `latitude: ${lat}; longitude: ${lon};`);
 
-        // Update the gps-entity-place attribute of the <a-entity>
-        const pokemonEntity = document.getElementById('pokemon');
-        pokemonEntity.setAttribute('gps-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
-        
-        alert(`Location set to Latitude: ${latitude}, Longitude: ${longitude}`);
-      });
     </script>
   </body>
 </html>
