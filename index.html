@@ -1,46 +1,116 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Chatty AR 2 - MUET</title>
-    <script src="https://aframe.io/releases/0.9.2/aframe.min.js"></script>
-    <script src="https://raw.githack.com/jeromeetienne/AR.js/master/aframe/build/aframe-ar.min.js"></script>
+    <title>AR Pokémon Go</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- A-Frame and AR.js scripts -->
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
     <script src="https://raw.githack.com/donmccurdy/aframe-extras/master/dist/aframe-extras.loaders.min.js"></script>
-    <script>
-      THREEx.ArToolkitContext.baseURL =
-        "https://raw.githack.com/jeromeetienne/ar.js/master/three.js/";
-    </script>
-  </head>
+    
+    <style>
+        /* Style for the status message overlay */
+        #status-message {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-family: Arial, sans-serif;
+            border-radius: 8px;
+            z-index: 1000;
+            text-align: center;
+            display: none; /* Hidden by default */
+        }
+    </style>
+</head>
 
-  <body style="margin: 0; overflow: hidden">
+<body style="margin: 0; overflow: hidden">
 
+    <!-- Status message display -->
+    <div id="status-message">Getting your location...</div>
+
+    <!-- A-Frame scene for AR -->
     <a-scene
-      vr-mode-ui="enabled: false"
-      embedded
-      arjs="sourceType: webcam; sourceWidth:1280; sourceHeight:960; displayWidth: 1280; displayHeight: 960; debugUIEnabled: false;"
+        vr-mode-ui="enabled: false"
+        embedded
+        arjs="sourceType: webcam; sourceWidth:1280; sourceHeight:960; displayWidth: 1280; displayHeight: 960; debugUIEnabled: false;"
     >
-      <a-camera gps-camera rotation-reader></a-camera>
-      <a-entity
-        id="pokemon"
-        gltf-model="./assets/magnemite/scene.gltf"
-        rotation="0 180 0"
-        scale="0.15 0.15 0.15"
-        gps-entity-place="latitude: 25.4444754; longitude: 68.2941323;"
-        animation-mixer
-      ></a-entity>
+        <!-- The camera will automatically track the device's GPS position -->
+        <a-camera gps-new-camera rotation-reader></a-camera>
+
+        <!-- Pokémon entity. Its position will be set dynamically by the script -->
+        <a-entity
+            id="pokemon"
+            gltf-model="https://cdn.glitch.global/b41d1453-2986-4993-8a3a-e22c9a33a8a8/pikachu.glb?v=1682194816734"
+            rotation="0 180 0"
+            scale="0.5 0.5 0.5"
+            animation-mixer
+        ></a-entity>
     </a-scene>
 
-<!--     <script>
-      let lat = prompt("Enter latitude");
-      if (lat != null) {
-        let lon = prompt("Enter longitude");
-      }
+    <script>
+        window.onload = () => {
+            const statusMessage = document.getElementById('status-message');
+            statusMessage.style.display = 'block';
 
-      // Update the gps-entity-place attribute of the <a-entity>
-      const pokemonEntity = document.getElementById('pokemon');
-      pokemonEntity.setAttribute('gps-entity-place', `latitude: ${lat}; longitude: ${lon};`);
+            // Options for geolocation request
+            const options = {
+                enableHighAccuracy: true,
+                maximumAge: 0,
+                timeout: 27000,
+            };
 
-    </script> -->
-  </body>
+            // Success callback for geolocation
+            const success = (position) => {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+
+                statusMessage.textContent = `Location found! Placing Pokémon nearby...`;
+
+                // Set the Pokémon's position slightly away from the user.
+                // 0.0002 degrees is roughly 22 meters.
+                const pokemonLatitude = latitude + 0.0002;
+                const pokemonLongitude = longitude;
+
+                const pokemonEntity = document.getElementById('pokemon');
+                
+                // Set the gps-new-entity-place attribute with the calculated coordinates
+                pokemonEntity.setAttribute('gps-new-entity-place', {
+                    latitude: pokemonLatitude,
+                    longitude: pokemonLongitude
+                });
+                
+                // Make the pokemon visible
+                pokemonEntity.setAttribute('visible', 'true');
+
+                console.log(`User at: ${latitude}, ${longitude}`);
+                console.log(`Pokémon at: ${pokemonLatitude}, ${pokemonLongitude}`);
+
+                // Hide the status message after a few seconds
+                setTimeout(() => {
+                    statusMessage.style.display = 'none';
+                }, 5000);
+            };
+
+            // Error callback for geolocation
+            const error = (err) => {
+                console.error('Error getting location:', err);
+                statusMessage.textContent = `Error: ${err.message}. Please enable location services.`;
+                statusMessage.style.backgroundColor = 'red';
+            };
+
+            // Request the user's location
+            if ('geolocation' in navigator) {
+                navigator.geolocation.watchPosition(success, error, options);
+            } else {
+                error({ message: 'Geolocation is not supported by your browser.' });
+            }
+        };
+    </script>
+</body>
 </html>
